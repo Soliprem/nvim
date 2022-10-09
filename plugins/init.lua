@@ -12,7 +12,6 @@ return {
   ["kdheepak/cmp-latex-symbols"] = require "user.plugins.cmp-latex-symbols",
   ["lukas-reineke/headlines.nvim"] = require "user.plugins.headlines",
   ["mfussenegger/nvim-dap"] = require "user.plugins.dap",
-  ["mickael-menu/zk-nvim"] = require "user.plugins.zk",
   ["mtikekar/nvim-send-to-term"] = require "user.plugins.nvim-send-to-term",
   ["nvim-telescope/telescope-bibtex.nvim"] = require "user.plugins.telescope-bibtex",
   ["nvim-telescope/telescope-file-browser.nvim"] = require "user.plugins.telescope-file-browser",
@@ -28,5 +27,6 @@ return {
   ["akinsho/git-conflict.nvim"] = require "user.plugins.git-conflict",
   "davidgranstrom/nvim-markdown-preview",
   "ellisonleao/gruvbox.nvim",
-  ["vimwiki/vimwiki"] = require "user.plugins.vimwiki.init",
+  ["vimwiki/vimwiki"] = require "user.plugins.vimwiki",
+  ["nvim-neorg/neorg"] = require "user.plugins.neorg",
 }
