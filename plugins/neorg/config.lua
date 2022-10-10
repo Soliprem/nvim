@@ -11,6 +11,8 @@ require("neorg").setup {
       },
     },
     ["core.norg.concealer"] = {},
+    ["core.export"] = {},
+    ["core.export.markdown"] = {},
     ["core.norg.completion"] = {
       config = {
         engine = "nvim-cmp",
