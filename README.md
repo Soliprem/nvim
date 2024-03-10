@@ -1,8 +1,8 @@
-# kickstart.nvim
+# Soli's nvim config
 
 ## Introduction
 
-A starting point for Neovim that is:
+This config was made basing itself off of [kickstart.nvim](https://github.com/nvim-lua/kickstart.nvim). This is its README, for more information. I simply added some personal preference configurations
 
 * Small
 * Single-file
