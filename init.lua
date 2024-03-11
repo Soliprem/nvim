@@ -243,9 +243,11 @@ require('lazy').setup {
   --  This is equivalent to:
   --    require('Comment').setup({})
 
+  -- Zen mode {{{2
+  { 'folke/zen-mode.nvim' },
+
   -- Enables auto-pairs {{{2
   {
-    { 'echasnovski/mini.pairs', enabled = false },
     {
       'windwp/nvim-autopairs',
       event = 'VeryLazy',
@@ -1115,6 +1117,38 @@ require('lazy').setup {
     'jghauser/kitty-runner.nvim',
     config = function()
       require('kitty-runner').setup()
+    end,
+  },
+  -- I really wanna get conjure working {{{2
+  {
+    'Olical/conjure',
+    ft = { 'clojure', 'fennel', 'python', 'julia' }, -- etc
+    -- [Optional] cmp-conjure for cmp
+    dependencies = {
+      {
+        'PaterJason/cmp-conjure',
+        config = function()
+          local cmp = require 'cmp'
+          local config = cmp.get_config()
+          table.insert(config.sources, {
+            name = 'buffer',
+            option = {
+              sources = {
+                { name = 'conjure' },
+              },
+            },
+          })
+          cmp.setup(config)
+        end,
+      },
+    },
+    config = function(_, opts)
+      require('conjure.main').main()
+      require('conjure.mapping')['on-filetype']()
+    end,
+    init = function()
+      -- Set configuration options here
+      vim.g['conjure#debug'] = true
     end,
   },
   -- knap. Absolutely the king of real time compilation {{{2
