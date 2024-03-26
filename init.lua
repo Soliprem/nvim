@@ -259,10 +259,6 @@ require('lazy').setup {
     dependencies = {
       {
         'jmbuhr/otter.nvim',
-        opts = {},
-        config = function()
-          require('otter').activate({ python }, true, true, nil)
-        end,
       },
     },
   },
