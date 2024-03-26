@@ -93,6 +93,12 @@ vim.g.maplocalleader = ' '
 -- Set fold to maker
 vim.opt.foldmethod = 'marker'
 
+-- Set default tab width to be more reasonable
+local tabsize = 4
+vim.opt.expandtab = true
+vim.opt.shiftwidth = tabsize
+vim.opt.tabstop = tabsize
+
 -- [[ Setting options ]]
 -- See `:help vim.opt`
 -- NOTE: You can change these options as you wish!
@@ -100,10 +106,12 @@ vim.opt.foldmethod = 'marker'
 
 -- Make line numbers default
 vim.opt.number = true
+vim.opt.relativenumber = true
 -- You can also add relative line numbers, for help with jumping.
 --  Experiment for yourself to see if you like it!
 -- vim.opt.relativenumber = true
 
+vim.opt.conceallevel = 2
 -- Enable mouse mode, can be useful for resizing splits for example!
 vim.opt.mouse = 'a'
 
@@ -232,7 +240,6 @@ vim.opt.rtp:prepend(lazypath)
 -- NOTE: Here is where you install your plugins.
 require('lazy').setup {
   -- NOTE: Plugins can be added with a link (or for a github repo: 'owner/repo' link).
-  'tpope/vim-sleuth', -- Detect tabstop and shiftwidth automatically
 
   -- NOTE: Plugins can also be added by using a table,
   -- with the first argument being the link and the following
@@ -245,6 +252,22 @@ require('lazy').setup {
 
   -- Zen mode {{{2
   { 'folke/zen-mode.nvim' },
+
+  -- Quarto {{{2
+  {
+    'quarto-dev/quarto-nvim',
+    dependencies = {
+      {
+        'jmbuhr/otter.nvim',
+        opts = {},
+        config = function()
+          require('otter').activate({ python }, true, true, nil)
+        end,
+      },
+    },
+  },
+
+  -- Otter to autocomplete embedded languages {{{2
 
   -- Enables auto-pairs {{{2
   {
@@ -300,6 +323,8 @@ require('lazy').setup {
   -- after the plugin has been loaded:
   --  config = function() ... end
 
+  -- Collaborative Editing. {{{2
+  { 'jbyuki/instant.nvim' },
   -- Useful plugin to show you pending keybinds. {{{2
   {
     'folke/which-key.nvim',
@@ -557,6 +582,8 @@ require('lazy').setup {
       local capabilities = vim.lsp.protocol.make_client_capabilities()
       capabilities = vim.tbl_deep_extend('force', capabilities, require('cmp_nvim_lsp').default_capabilities())
 
+      capabilities.workspace.didChangeWatchedFiles.dynamicRegistration = false
+
       -- Enable the following language servers
       --  Feel free to add/remove any LSPs that you want here. They will automatically be installed.
       --
@@ -691,6 +718,7 @@ require('lazy').setup {
       --  into multiple repos for maintenance purposes.
       'hrsh7th/cmp-nvim-lsp',
       'hrsh7th/cmp-path',
+      'hrsh7th/cmp-buffer',
       'hrsh7th/cmp-emoji',
       'hrsh7th/cmp-calc',
       'hrsh7th/cmp-latex-symbols',
@@ -754,8 +782,10 @@ require('lazy').setup {
           end, { 'i', 's' }),
         },
         sources = {
+          { name = 'otter' },
           { name = 'nvim_lsp' },
           { name = 'luasnip' },
+          { name = 'buffer' },
           { name = 'path' },
           { name = 'emoji' },
           { name = 'calc' },
