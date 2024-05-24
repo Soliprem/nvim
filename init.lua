@@ -218,6 +218,21 @@ vim.api.nvim_create_autocmd('TextYankPost', {
   end,
 })
 
+vim.filetype.add {
+  extension = {
+    typ = 'typst',
+  },
+}
+-- vim.cmd 'au BufRead,BufNewFile *.typ	set filetype=typst'
+-- vim.api.nvim_create_autocmd({ 'BufRead', 'BufNewFile' }, {
+--   desc = 'fixing filetype detection issue',
+--   pattern = '*.typ',
+--   group = vim.api.nvim_create_augroup('typst-filetype-issue', { clear = true }),
+--   callback = function()
+--     vim.opt.filetype = 'typst'
+--   end,
+-- })
+
 -- [[ Install `lazy.nvim` plugin manager ]] {{{1
 --    See `:help lazy.nvim.txt` or https://github.com/folke/lazy.nvim for more info
 local lazypath = vim.fn.stdpath 'data' .. '/lazy/lazy.nvim'
@@ -907,15 +922,51 @@ require('lazy').setup {
   -- Neorg {{{2
   {
     'vhyrro/luarocks.nvim',
-    branch = 'more-fixes',
-    config = function()
-      require('luarocks').setup {}
-    end,
+    priority = 1000,
+    config = true,
+    opts = { rocks = { 'magick' } },
   },
   {
     'nvim-neorg/neorg',
-    build = ':Neorg sync-parsers',
-    dependencies = { { 'nvim-neorg/neorg-telescope' }, { 'luarocks.nvim' }, { '3rd/image.nvim' } },
+    -- build = ':Neorg sync-parsers',
+    dependencies = {
+      { 'nvim-neorg/neorg-telescope' },
+      { 'luarocks.nvim' },
+      {
+        '3rd/image.nvim',
+        opts = function()
+          require('image').setup {
+            backend = 'kitty',
+            integrations = {
+              markdown = {
+                enabled = true,
+                clear_in_insert_mode = false,
+                download_remote_images = true,
+                only_render_image_at_cursor = false,
+                filetypes = { 'markdown', 'vimwiki', 'quarto' }, -- markdown extensions (ie. quarto) can go here
+              },
+              neorg = {
+                enabled = true,
+                clear_in_insert_mode = false,
+                download_remote_images = true,
+                only_render_image_at_cursor = false,
+                filetypes = { 'norg' },
+              },
+            },
+            max_width = nil,
+            max_height = nil,
+            max_width_window_percentage = nil,
+            max_height_window_percentage = 50,
+            window_overlap_clear_enabled = true, -- toggles images when windows are overlapped
+            window_overlap_clear_ft_ignore = { 'cmp_menu', 'cmp_docs', 'notify', '' },
+            editor_only_render_when_focused = false, -- auto show/hide images when the editor gains/looses focus
+            tmux_show_only_in_active_window = false, -- auto show/hide images in the correct Tmux window (needs visual-activity off)
+            hijack_file_patterns = { '*.png', '*.jpg', '*.jpeg', '*.gif', '*.webp' }, -- render image files as images when opened
+          }
+        end,
+      },
+    },
+    version = '*',
     config = function()
       require('neorg').setup {
         load = {
@@ -937,12 +988,6 @@ require('lazy').setup {
     end,
   },
 
-  -- Typst {{{2
-  {
-    'kaarmu/typst.vim',
-    ft = 'typst',
-    lazy = false,
-  },
   -- Mkdownflow {{{2
   {
     'jakewvincent/mkdnflow.nvim',
@@ -1150,38 +1195,8 @@ require('lazy').setup {
       require('kitty-runner').setup()
     end,
   },
-  -- I really wanna get conjure working {{{2
-  {
-    'Olical/conjure',
-    ft = { 'clojure', 'fennel', 'python', 'julia' }, -- etc
-    -- [Optional] cmp-conjure for cmp
-    dependencies = {
-      {
-        'PaterJason/cmp-conjure',
-        config = function()
-          local cmp = require 'cmp'
-          local config = cmp.get_config()
-          table.insert(config.sources, {
-            name = 'buffer',
-            option = {
-              sources = {
-                { name = 'conjure' },
-              },
-            },
-          })
-          cmp.setup(config)
-        end,
-      },
-    },
-    config = function(_, opts)
-      require('conjure.main').main()
-      require('conjure.mapping')['on-filetype']()
-    end,
-    init = function()
-      -- Set configuration options here
-      vim.g['conjure#debug'] = true
-    end,
-  },
+  -- Vimbegood is just good fun and good practice {{{2
+  { 'ThePrimeagen/vim-be-good' },
   -- knap. Absolutely the king of real time compilation {{{2
   {
     'frabjous/knap',
@@ -1326,6 +1341,5 @@ require('lazy').setup {
   --    For additional information, see `:help lazy.nvim-lazy.nvim-structuring-your-plugins`
   -- { import = 'custom.plugins' },
 }
-
 -- The line beneath this is called `modeline`. See `:help modeline`
 -- vim: ts=2 sts=2 sw=2 et
