@@ -408,7 +408,11 @@ require('lazy').setup {
         --     i = { ['<c-enter>'] = 'to_fuzzy_refine' },
         --   },
         -- },
-        -- pickers = {}
+        pickers = {
+          colorscheme = {
+            enable_preview = true,
+          },
+        },
         extensions = {
           ['ui-select'] = {
             require('telescope.themes').get_dropdown(),
@@ -807,20 +811,39 @@ require('lazy').setup {
   { 'neanias/everforest-nvim' },
   { 'catppuccin/nvim' },
   { 'rose-pine/neovim' },
-  { 'ellisonleao/gruvbox.nvim' },
+  {
+    'ellisonleao/gruvbox.nvim',
+    lazy = false, -- make sure we load this during startup if it is your main colorscheme
+    priority = 1000, -- make sure to load this before all the other start plugins
+    config = function()
+      -- Load the colorscheme here
+      vim.cmd.colorscheme 'gruvbox'
+
+      -- You can configure highlights by doing something like
+      vim.cmd.hi 'Comment gui=none'
+    end,
+  },
   { -- You can easily change to a different colorscheme.
     -- Change the name of the colorscheme plugin below, and then
     -- change the command in the config to whatever the name of that colorscheme is
     --
     -- If you want to see what colorschemes are already installed, you can use `:Telescope colorscheme`
     'folke/tokyonight.nvim',
-    lazy = false, -- make sure we load this during startup if it is your main colorscheme
-    priority = 1000, -- make sure to load this before all the other start plugins
+  },
+  {
+    'scottmckendry/cyberdream.nvim',
+    lazy = false,
+    priority = 1000,
     config = function()
-      -- Load the colorscheme here
-      vim.cmd.colorscheme 'tokyonight-night'
-
-      -- You can configure highlights by doing something like
+      require('cyberdream').setup {
+        -- Recommended - see "Configuring" below for more config options
+        transparent = true,
+        italic_comments = true,
+        hide_fillchars = true,
+        borderless_telescope = true,
+        terminal_colors = true,
+      }
+      -- vim.cmd 'colorscheme cyberdream' -- set the colorscheme
       vim.cmd.hi 'Comment gui=none'
     end,
   },
@@ -911,15 +934,15 @@ require('lazy').setup {
   -- Neorg {{{2
   {
     'vhyrro/luarocks.nvim',
-    branch = 'more-fixes',
-    config = function()
-      require('luarocks').setup {}
-    end,
+    priority = 1000,
+    config = true,
   },
   {
     'nvim-neorg/neorg',
-    build = ':Neorg sync-parsers',
+    -- build = ':Neorg sync-parsers',
     dependencies = { { 'nvim-neorg/neorg-telescope' }, { 'luarocks.nvim' }, { '3rd/image.nvim' } },
+    lazy = false,
+    version = '*',
     config = function()
       require('neorg').setup {
         load = {
@@ -938,6 +961,8 @@ require('lazy').setup {
           },
         },
       }
+      vim.wo.foldlevel = 99
+      vim.wo.conceallevel = 2
     end,
   },
 
@@ -1139,7 +1164,7 @@ require('lazy').setup {
     'folke/drop.nvim',
     config = function()
       require('drop').setup {
-        theme = 'snow',
+        theme = 'leaves',
       }
     end,
   },
