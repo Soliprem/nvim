@@ -7,7 +7,7 @@
 ========         .----------------------.   | === |          ========
 ========         |.-""""""""""""""""""-.|   |-----|          ========
 ========         ||                    ||   | === |          ========
-========         ||   KICKSTART.NVIM   ||   |-----|          ========
+========         ||   SOLIPREM.NVIM    ||   |-----|          ========
 ========         ||                    ||   | === |          ========
 ========         ||                    ||   |-----|          ========
 ========         ||:Tutor              ||   |:::::|          ========
@@ -19,69 +19,6 @@
 ========                                                     ========
 =====================================================================
 =====================================================================
-
-What is Kickstart?{{{1
-
-  Kickstart.nvim is *not* a distribution.
-
-  Kickstart.nvim is a starting point for your own configuration.
-    The goal is that you can read every line of code, top-to-bottom, understand
-    what your configuration is doing, and modify it to suit your needs.
-
-    Once you've done that, you can start exploring, configuring and tinkering to
-    make Neovim your own! That might mean leaving kickstart just the way it is for a while
-    or immediately breaking it into modular pieces. It's up to you!
-
-    If you don't know anything about Lua, I recommend taking some time to read through
-    a guide. One possible example which will only take 10-15 minutes:
-      - https://learnxinyminutes.com/docs/lua/
-
-    After understanding a bit more about Lua, you can use `:help lua-guide` as a
-    reference for how Neovim integrates Lua.
-    - :help lua-guide
-    - (or HTML version): https://neovim.io/doc/user/lua-guide.html
-
-Kickstart Guide:
-
-  TODO: The very first thing you should do is to run the command `:Tutor` in Neovim.
-
-    If you don't know what this means, type the following:
-      - <escape key>
-      - :
-      - Tutor
-      - <enter key>
-
-    (If you already know how the Neovim basics, you can skip this step)
-
-  Once you've completed that, you can continue working through **AND READING** the rest
-  of the kickstart init.lua
-
-  Next, run AND READ `:help`.
-    This will open up a help window with some basic information
-    about reading, navigating and searching the builtin help documentation.
-
-    This should be the first place you go to look when you're stuck or confused
-    with something. It's one of my favorite neovim features.
-
-    MOST IMPORTANTLY, we provide a keymap "<space>sh" to [s]earch the [h]elp documentation,
-    which is very useful when you're not sure exactly what you're looking for.
-
-  I have left several `:help X` comments throughout the init.lua
-    These are hints about where to find more information about the relevant settings,
-    plugins or neovim features used in kickstart.
-
-   NOTE: Look for lines like this
-
-    Throughout the file. These are for you, the reader, to help understand what is happening.
-    Feel free to delete them once you know what you're doing, but they should serve as a guide
-    for when you are first encountering a few different constructs in your nvim config.
-
-If you experience any errors while trying to install kickstart, run `:checkhealth` for more info
-
-I hope you enjoy your Neovim journey,
-- TJ
-
-P.S. You can delete this when you're done too. It's your config now! :)
 --]]
 -- Settings {{{1
 -- Set <space> as the leader key
@@ -173,6 +110,10 @@ vim.keymap.set('n', ']d', vim.diagnostic.goto_next, { desc = 'Go to next [D]iagn
 vim.keymap.set('n', '<leader>e', vim.diagnostic.open_float, { desc = 'Show diagnostic [E]rror messages' })
 vim.keymap.set('n', '<leader>q', vim.diagnostic.setloclist, { desc = 'Open diagnostic [Q]uickfix list' })
 
+-- remap jk to gj, gk for navigation in text-wrapped paragraphs
+vim.keymap.set('n', 'j', 'gj')
+vim.keymap.set('n', 'k', 'gk')
+
 -- Exit terminal mode in the builtin terminal with a shortcut that is a bit easier
 -- for people to discover. Otherwise, you normally need to press <C-\><C-n>, which
 -- is not what someone will guess without a bit more experience.
@@ -217,21 +158,6 @@ vim.api.nvim_create_autocmd('TextYankPost', {
     vim.highlight.on_yank()
   end,
 })
-
-vim.filetype.add {
-  extension = {
-    typ = 'typst',
-  },
-}
--- vim.cmd 'au BufRead,BufNewFile *.typ	set filetype=typst'
--- vim.api.nvim_create_autocmd({ 'BufRead', 'BufNewFile' }, {
---   desc = 'fixing filetype detection issue',
---   pattern = '*.typ',
---   group = vim.api.nvim_create_augroup('typst-filetype-issue', { clear = true }),
---   callback = function()
---     vim.opt.filetype = 'typst'
---   end,
--- })
 
 -- [[ Install `lazy.nvim` plugin manager ]] {{{1
 --    See `:help lazy.nvim.txt` or https://github.com/folke/lazy.nvim for more info
@@ -419,7 +345,11 @@ require('lazy').setup {
         --     i = { ['<c-enter>'] = 'to_fuzzy_refine' },
         --   },
         -- },
-        -- pickers = {}
+        pickers = {
+          colorscheme = {
+            enable_preview = true,
+          },
+        },
         extensions = {
           ['ui-select'] = {
             require('telescope.themes').get_dropdown(),
@@ -818,20 +748,39 @@ require('lazy').setup {
   { 'neanias/everforest-nvim' },
   { 'catppuccin/nvim' },
   { 'rose-pine/neovim' },
-  { 'ellisonleao/gruvbox.nvim' },
+  {
+    'ellisonleao/gruvbox.nvim',
+    lazy = false, -- make sure we load this during startup if it is your main colorscheme
+    priority = 1000, -- make sure to load this before all the other start plugins
+    config = function()
+      -- Load the colorscheme here
+      vim.cmd.colorscheme 'gruvbox'
+
+      -- You can configure highlights by doing something like
+      vim.cmd.hi 'Comment gui=none'
+    end,
+  },
   { -- You can easily change to a different colorscheme.
     -- Change the name of the colorscheme plugin below, and then
     -- change the command in the config to whatever the name of that colorscheme is
     --
     -- If you want to see what colorschemes are already installed, you can use `:Telescope colorscheme`
     'folke/tokyonight.nvim',
-    lazy = false, -- make sure we load this during startup if it is your main colorscheme
-    priority = 1000, -- make sure to load this before all the other start plugins
+  },
+  {
+    'scottmckendry/cyberdream.nvim',
+    lazy = false,
+    priority = 1000,
     config = function()
-      -- Load the colorscheme here
-      vim.cmd.colorscheme 'tokyonight-night'
-
-      -- You can configure highlights by doing something like
+      require('cyberdream').setup {
+        -- Recommended - see "Configuring" below for more config options
+        transparent = true,
+        italic_comments = true,
+        hide_fillchars = true,
+        borderless_telescope = true,
+        terminal_colors = true,
+      }
+      -- vim.cmd 'colorscheme cyberdream' -- set the colorscheme
       vim.cmd.hi 'Comment gui=none'
     end,
   },
@@ -924,48 +873,20 @@ require('lazy').setup {
     'vhyrro/luarocks.nvim',
     priority = 1000,
     config = true,
-    opts = { rocks = { 'magick' } },
+  },
+  {
+    '3rd/image.nvim',
+    dependencies = { 'luarocks.nvim' },
+    config = function()
+      require('image').setup {}
+    end,
   },
   {
     'nvim-neorg/neorg',
     -- build = ':Neorg sync-parsers',
-    dependencies = {
-      { 'nvim-neorg/neorg-telescope' },
-      { 'luarocks.nvim' },
-      {
-        '3rd/image.nvim',
-        opts = function()
-          require('image').setup {
-            backend = 'kitty',
-            integrations = {
-              markdown = {
-                enabled = true,
-                clear_in_insert_mode = false,
-                download_remote_images = true,
-                only_render_image_at_cursor = false,
-                filetypes = { 'markdown', 'vimwiki', 'quarto' }, -- markdown extensions (ie. quarto) can go here
-              },
-              neorg = {
-                enabled = true,
-                clear_in_insert_mode = false,
-                download_remote_images = true,
-                only_render_image_at_cursor = false,
-                filetypes = { 'norg' },
-              },
-            },
-            max_width = nil,
-            max_height = nil,
-            max_width_window_percentage = nil,
-            max_height_window_percentage = 50,
-            window_overlap_clear_enabled = true, -- toggles images when windows are overlapped
-            window_overlap_clear_ft_ignore = { 'cmp_menu', 'cmp_docs', 'notify', '' },
-            editor_only_render_when_focused = false, -- auto show/hide images when the editor gains/looses focus
-            tmux_show_only_in_active_window = false, -- auto show/hide images in the correct Tmux window (needs visual-activity off)
-            hijack_file_patterns = { '*.png', '*.jpg', '*.jpeg', '*.gif', '*.webp' }, -- render image files as images when opened
-          }
-        end,
-      },
-    },
+    dependencies = { { 'nvim-neorg/neorg-telescope' }, { 'luarocks.nvim' }, { '3rd/image.nvim' } },
+    -- dir = '~/.local/src/neorg',
+    lazy = false,
     version = '*',
     config = function()
       require('neorg').setup {
@@ -975,7 +896,13 @@ require('lazy').setup {
           ['core.export'] = {}, -- Adds export options
           ['core.integrations.telescope'] = {},
           ['core.integrations.image'] = {},
-          -- ["core.latex.renderer"] = {},
+          -- ['core.typst.renderer'] = {
+          --   config = {
+          --     dpi = 1000,
+          --     -- render_on_enter = true,
+          --     scale = 2,
+          --   },
+          -- },
           ['core.dirman'] = { -- Manages Neorg workspaces
             config = {
               workspaces = {
@@ -985,9 +912,20 @@ require('lazy').setup {
           },
         },
       }
+      vim.wo.foldlevel = 99
+      vim.wo.conceallevel = 2
     end,
   },
-
+  --- {{{ nvim-ghost
+  {
+    'subnut/nvim-ghost.nvim',
+  },
+  -- Typst {{{2
+  {
+    'kaarmu/typst.vim',
+    ft = 'typst',
+    lazy = false,
+  },
   -- Mkdownflow {{{2
   {
     'jakewvincent/mkdnflow.nvim',
@@ -1180,7 +1118,7 @@ require('lazy').setup {
     'folke/drop.nvim',
     config = function()
       require('drop').setup {
-        theme = 'snow',
+        theme = 'leaves',
       }
     end,
   },
@@ -1195,8 +1133,38 @@ require('lazy').setup {
       require('kitty-runner').setup()
     end,
   },
-  -- Vimbegood is just good fun and good practice {{{2
-  { 'ThePrimeagen/vim-be-good' },
+  -- I really wanna get conjure working {{{2
+  {
+    'Olical/conjure',
+    ft = { 'clojure', 'fennel', 'python', 'julia' }, -- etc
+    -- [Optional] cmp-conjure for cmp
+    dependencies = {
+      {
+        'PaterJason/cmp-conjure',
+        config = function()
+          local cmp = require 'cmp'
+          local config = cmp.get_config()
+          table.insert(config.sources, {
+            name = 'buffer',
+            option = {
+              sources = {
+                { name = 'conjure' },
+              },
+            },
+          })
+          cmp.setup(config)
+        end,
+      },
+    },
+    config = function(_, opts)
+      require('conjure.main').main()
+      require('conjure.mapping')['on-filetype']()
+    end,
+    init = function()
+      -- Set configuration options here
+      vim.g['conjure#debug'] = true
+    end,
+  },
   -- knap. Absolutely the king of real time compilation {{{2
   {
     'frabjous/knap',
@@ -1341,5 +1309,6 @@ require('lazy').setup {
   --    For additional information, see `:help lazy.nvim-lazy.nvim-structuring-your-plugins`
   -- { import = 'custom.plugins' },
 }
+
 -- The line beneath this is called `modeline`. See `:help modeline`
 -- vim: ts=2 sts=2 sw=2 et
