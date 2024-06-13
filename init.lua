@@ -1123,6 +1123,12 @@ require('lazy').setup {
     end,
   },
 
+  -- Pets {{{2
+  {
+    'giusgad/pets.nvim',
+    dependencies = { 'MunifTanjim/nui.nvim', 'giusgad/hologram.nvim' },
+  },
+
   -- Integrate ollama into neovim {{{2
   { 'David-Kunz/gen.nvim' },
 
